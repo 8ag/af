@@ -159,6 +159,9 @@ authenticate = False
 # Start Web Server
 nohup airflow webserver $* >> /airflow/logs/webserver.logs &
 
+#for stop
+for pid in $(ps -ef | grep "ww" | awk '{print $2}'); do kill -9 $pid; done
+
 #Start Celery Workers
 nohup airflow worker $* >> /airflow/logs/celery.logs &
 
@@ -167,6 +170,8 @@ nohup airflow scheduler >> /airflow/logs/scheduler.logs &
 
 #Navigate to the Airflow UI
 http://{HOSTNAME}:8080/admin/
+
+##update mysql info in connection at admin menu
 
 #Start Flower (Optional)
 #Flower is a web UI built on top of Celery, to monitor your workers.
