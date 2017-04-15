@@ -1,30 +1,9 @@
-http://site.clairvoyantsoft.com/installing-and-configuring-apache-airflow/
-
 #Run upgrade
 
 apt-get update
  
-#Unzip
-apt-get install unzip
- 
-#Build Essentials - GCC Compiler
-apt-get install build-essential
- 
-#Python Development
-apt-get install python-dev
- 
-#SASL
-apt-get install libsasl2-dev
- 
-#Pandas
-apt-get install python-pandas
-
-## 
-apt-get install binutils
-apt-get install gcc
-apt-get install build-essential
-pip install pandas
-
+#Unzip/Build Essentials - GCC Compiler/Python Development/SASL/Pandas
+apt-get install unzip build-essential python-dev libsasl2-dev python-pandas binutils
 
 python -V  # should be 2.7x
 
@@ -32,14 +11,7 @@ python -V  # should be 2.7x
 apt-get install python-pip
 pip install --upgrade pip
 
-## install  RabbitMQ
-apt-get install rabbitmq-server
-rabbitmqctl status
-rabbitmq-plugins enable rabbitmq_management
-service rabbitmq-server start
 
-http://{ANY_RABBITMQ_NODE_HOSTNAME}:15672/
-Default credentials: guest/guest
 
 ## Install MySQL on Ubuntu
  apt-get install python-dev libmysqlclient-dev
@@ -48,17 +20,17 @@ Default credentials: guest/guest
 apt-get install mysql-server
 mysql_secure_installation
 
-mysql database	 : anix
-mysql user 	    : airflow
-mysql user pass	: Airflow!1
+mysql database	 : anixDb
+mysql user 	    : airflowDbUser
+mysql user pass	: Airflow!1PW
 
-CREATE DATABASE anix CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-CREATE USER 'airflow'@'localhost' IDENTIFIED BY 'Airflow!1';
-GRANT ALL PRIVILEGES ON * . * TO 'airflow'@'localhost';
+CREATE DATABASE anixDb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
+GRANT ALL PRIVILEGES ON * . * TO 'airflowDbUser'@'localhost';
 FLUSH PRIVILEGES;
 
 #password change if needed
-ALTER USER 'airflow'@'localhost' IDENTIFIED BY 'Airflow!1';
+ALTER USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
 
  
 ###@@@@ Install Airflow and other dependencies
@@ -68,10 +40,6 @@ pip install airflow[hive]
 pip install airflow[celery]
 pip install airflow[devel]
 
-pip install celery==3.1.17
-
-pip install airflow[mysql]
-pip install airflow[rabbitmq]
 
 mkdir /airflow
 mkdir /airflow/dags
@@ -84,77 +52,7 @@ export AIRFLOW_HOME=/airflow
 cd /airflow
 airflow initdb
 
-##########################################
-vi /airflow/airflow.cfg
-[core]
-airflow_home = /airflow
-dags_folder = /airflow/dags
-base_log_folder = /airflow/logs
-plugins_folder = /airflow/plugins
-s3_log_folder = None
-
-
-executor = CeleryExecutor
-sql_alchemy_conn = mysql://airflow:Airflow!1@localhost/anix
-
-sql_alchemy_pool_size = 5
-sql_alchemy_pool_recycle = 3600
-parallelism = 32
-dag_concurrency = 16
-dags_are_paused_at_creation = False
-max_active_runs_per_dag = 16
-load_examples = True
-fernet_key = cryptography_not_found_storing_passwords_in_plain_text
-donot_pickle = False
-dagbag_import_timeout = 30
-
-[webserver]
-base_url = http://localhost:8080
-web_server_host = 0.0.0.0
-web_server_port = 8080
-secret_key = temporary_key
-workers = 4
-worker_class = sync
-expose_config = true
-authenticate = False
-filter_by_owner = False
-
-[email]
-email_backend = airflow.utils.send_email_smtp
-
-[smtp]
-smtp_host = localhost
-smtp_starttls = True
-smtp_ssl = False
-smtp_user = airflow
-smtp_port = 25
-smtp_password = airflow
-smtp_mail_from = airflow@airflow.com
-
-[celery]
-celery_app_name = airflow.executors.celery_executor
-celeryd_concurrency = 16
-worker_log_server_port = 8793
-
-broker_url = amqp://guest:guest@0.0.0.0:5672/
-celery_result_backend = db+mysql://airflow:Airflow!1@localhost:3306/anix
-
-flower_port = 5556
-default_queue = default
-
-[scheduler]
-job_heartbeat_sec = 5
-scheduler_heartbeat_sec = 5
-
-
-[mesos]
-master = localhost:5050
-framework_name = Airflow
-task_cpu = 1
-task_memory = 256
-checkpoint = False
-authenticate = False
-##########################################
+## UPDATE custome config file
 
 
 # Start Web Server
