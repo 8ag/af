@@ -48,9 +48,9 @@ Default credentials: guest/guest
 apt-get install mysql-server
 mysql_secure_installation
 
-mysql user 	: airflow
-mysql user pass	:Airflow!1
-mysql database	: anix
+mysql database	 : anix
+mysql user 	    : airflow
+mysql user pass	: Airflow!1
 
 CREATE DATABASE anix CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 CREATE USER 'airflow'@'localhost' IDENTIFIED BY 'Airflow!1';
@@ -68,6 +68,7 @@ pip install airflow[hive]
 pip install airflow[celery]
 pip install airflow[devel]
 
+pip install celery==3.1.17
 
 pip install airflow[mysql]
 pip install airflow[rabbitmq]
@@ -77,7 +78,7 @@ mkdir /airflow/dags
 mkdir /airflow/logs
 mkdir /airflow/plugins
 
-vi .bashrc
+vi /etc/bash.bashrc
 export AIRFLOW_HOME=/airflow
 
 cd /airflow
@@ -160,7 +161,7 @@ authenticate = False
 nohup airflow webserver $* >> /airflow/logs/webserver.logs &
 
 #for stop
-for pid in $(ps -ef | grep "ww" | awk '{print $2}'); do kill -9 $pid; done
+for pid in $(ps -ef | grep -e "ww" -e airflow | awk '{print $2}'); do kill -9 $pid; done
 
 #Start Celery Workers
 nohup airflow worker $* >> /airflow/logs/celery.logs &
