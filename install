@@ -14,10 +14,10 @@ pip install --upgrade pip
 
 
 ## Install MySQL on Ubuntu
- apt-get install python-dev libmysqlclient-dev
+ apt-get install python-dev libmysqlclient-dev mysql-server mysql-client
  pip install MySQL-python
 
-apt-get install mysql-server
+
 mysql_secure_installation
 
 mysql database	 : anixDb
@@ -36,10 +36,7 @@ ALTER USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
 ###@@@@ Install Airflow and other dependencies
 
 pip install airflow==1.7.0
-pip install airflow[hive]
-pip install airflow[celery]
-pip install airflow[devel]
-
+pip install celery==3.1.17
 
 mkdir /airflow
 mkdir /airflow/dags
