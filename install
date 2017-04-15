@@ -7,16 +7,24 @@ apt-get install unzip build-essential python-dev libsasl2-dev python-pandas binu
 
 python -V  # should be 2.7x
 
+vi /etc/bash.bashrc
+export AIRFLOW_HOME=/airflow
+
+mkdir /airflow
+mkdir /airflow/dags
+mkdir /airflow/logs
+mkdir /airflow/plugins
+
 # install pip
 apt-get install python-pip
 pip install --upgrade pip
 
+pip install airflow
 
 
 ## Install MySQL on Ubuntu
- apt-get install python-dev libmysqlclient-dev mysql-server mysql-client
- pip install MySQL-python
-
+apt-get install python-dev libmysqlclient-dev mysql-server mysql-client
+pip install MySQL-python
 
 mysql_secure_installation
 
@@ -33,23 +41,37 @@ FLUSH PRIVILEGES;
 ALTER USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
 
  
-###@@@@ Install Airflow and other dependencies
+##other dependencies
 
-pip install airflow==1.7.0
-pip install celery==3.1.17
-
-mkdir /airflow
-mkdir /airflow/dags
-mkdir /airflow/logs
-mkdir /airflow/plugins
-
-vi /etc/bash.bashrc
-export AIRFLOW_HOME=/airflow
+pip install airflow[mysql] 
+pip install airflow[celery] 
+pip install airflow[rabbitmq]
 
 cd /airflow
 airflow initdb
 
 ## UPDATE custome config file
+
+
+# Check syntax errors for your dag
+python ~/airflow/dags/tutorial.py
+
+# Print the list of active DAGs
+airflow list_dags
+
+# Print the list of tasks the "tutorial" dag_id
+airflow list_tasks tutorial
+
+# Print the hierarchy of tasks in the tutorial DAG
+airflow list_tasks tutorial --tree
+
+# Test your tasks in your dag
+airflow test [DAG_ID] [TASK_ID] [EXECUTION_DATE]
+airflow test tutorial sleep 2015-06-01
+
+# Backfill: execute jobs that are not done in the past
+airflow backfill tutorial -s 2015-06-01 -e 2015-06-07
+
 
 
 # Start Web Server
