@@ -21,6 +21,44 @@ pip install --upgrade pip
 
 pip install airflow
 
+##other dependencies
+
+pip install airflow[mysql] 
+pip install airflow[celery] 
+pip install airflow[rabbitmq]
+
+cd /airflow
+airflow initdb
+
+## UPDATE custome config file
+
+airflow webserver $* 
+airflow scheduler
+
+
+########################################################################
+# Check syntax errors for your dag
+python ~/airflow/dags/helloworld.py
+
+# Print the list of active DAGs
+airflow list_dags
+
+# Print the list of tasks the "helloworld" dag_id
+airflow list_tasks itcps_HelloWorld
+
+# Print the hierarchy of tasks in the tutorial DAG
+airflow list_tasks itcps_HelloWorld --tree
+
+# Test your tasks in your dag
+airflow test [DAG_ID] [TASK_ID] [EXECUTION_DATE]
+airflow test itcps_HelloWorld sleep 2017-04-15
+
+# Backfill: execute jobs that are not done in the past
+airflow backfill itcps_HelloWorld -s 2017-04-15 -e 2017-04-17
+#######################################################################
+
+
+#Phase-2 - with mysql 
 
 ## Install MySQL on Ubuntu
 apt-get install python-dev libmysqlclient-dev mysql-server mysql-client
@@ -40,39 +78,16 @@ FLUSH PRIVILEGES;
 #password change if needed
 ALTER USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
 
- 
-##other dependencies
 
-pip install airflow[mysql] 
-pip install airflow[celery] 
-pip install airflow[rabbitmq]
+# Change the executor to Local Executor and db
+executor = LocalExecutor
 
-cd /airflow
-airflow initdb
-
-## UPDATE custome config file
+sql_alchemy_conn = postgresql+psycopg2://your_postgres_user_name:your_postgres_password@host_name/database_name
 
 
-# Check syntax errors for your dag
-python ~/airflow/dags/tutorial.py
-
-# Print the list of active DAGs
-airflow list_dags
-
-# Print the list of tasks the "tutorial" dag_id
-airflow list_tasks tutorial
-
-# Print the hierarchy of tasks in the tutorial DAG
-airflow list_tasks tutorial --tree
-
-# Test your tasks in your dag
-airflow test [DAG_ID] [TASK_ID] [EXECUTION_DATE]
-airflow test tutorial sleep 2015-06-01
-
-# Backfill: execute jobs that are not done in the past
-airflow backfill tutorial -s 2015-06-01 -e 2015-06-07
 
 
+######################################################################
 
 # Start Web Server
 nohup airflow webserver $* >> /airflow/logs/webserver.logs &
