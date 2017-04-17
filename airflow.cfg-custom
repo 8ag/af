@@ -5,9 +5,10 @@ base_log_folder = /airflow/logs
 plugins_folder = /airflow/plugins
 s3_log_folder = None
 
-
 executor = CeleryExecutor
 sql_alchemy_conn = mysql://airflowDbUser:Airflow!1PW@localhost/anixDb
+broker_url = amqp://radmin:radmin@localhost/anix 
+celery_result_backend = amqp://radmin:radmin@localhost/anix 
 
 sql_alchemy_pool_size = 5
 sql_alchemy_pool_recycle = 3600
@@ -21,7 +22,7 @@ donot_pickle = False
 dagbag_import_timeout = 30
 
 [webserver]
-base_url = http://localhost:8080
+base_url = http://0.0.0.0:8080
 web_server_host = 0.0.0.0
 web_server_port = 8080
 secret_key = temporary_key
