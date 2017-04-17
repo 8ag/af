@@ -1,0 +1,9 @@
+Configure your airflow workers; follow most steps for the airflow server, except that they do not have PostgreSQL and RabbitMQ servers
+
+Start your airflow workers  # on each worker, run:
+airflow worker # The prompt will show the worker is ready to pick up tasks if everything goes well
+
+# Start you airflow server
+
+airflow webserver
+airflow scheduler
