@@ -21,7 +21,6 @@ ALTER USER 'airflowDbUser'@'localhost' IDENTIFIED BY 'Airflow!1PW';
 
 ##other dependencies
 pip install airflow[mysql] 
-pip install airflow[rabbitmq]
 
 ## UPDATE custome config file
 
