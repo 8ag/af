@@ -29,6 +29,14 @@ pip install airflow[rabbitmq]
 executor = LocalExecutor
 sql_alchemy_conn = mysql://airflowDbUser:Airflow!1PW@localhost/anixDb
 
+
+# Restart airflow to test your dags
+airflow initdb
+airflow webserver
+airflow scheduler
+
+#Establish your own connections via the web UI; you can test your DB connections via the Ad Hoc Query
+
 ######################################################################
 
 # Start Web Server
