@@ -27,8 +27,7 @@ pip install airflow[rabbitmq]
 
 # Change the executor to Local Executor and db
 executor = LocalExecutor
-sql_alchemy_conn = postgresql+psycopg2://your_postgres_user_name:your_postgres_password@host_name/database_name
-
+sql_alchemy_conn = mysql://airflowDbUser:Airflow!1PW@localhost/anixDb
 
 ######################################################################
 
