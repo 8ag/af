@@ -1,4 +1,3 @@
-
 wget http://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc sudo apt-key add erlang_solutions.asc
 apt-get install erlang  erlang-nox -y
 sudo echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list
@@ -15,3 +14,14 @@ rabbitmqctl set_user_tags radmin administrator
 rabbitmqctl set_permissions -p / radmin ".*" ".*" ".*"
 
 http://server-ip-address:15672
+
+/usr/local/etc/rabbitmq/rabbitmq-env.conf
+or
+cd /usr/share/doc/rabbitmq-server/
+gunzip rabbitmq.config.example.gz
+cp rabbitmq.config.example  /etc/rabbitmq/rabbitmq.config
+
+
+executor = CeleryExecutor
+broker_url = amqp://radmin:radmin@localhost/anix 
+celery_result_backend = amqp://radmin:radmin@localhost/anix 
