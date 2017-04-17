@@ -1,6 +1,6 @@
-########################################################################
+#######################################################################
 # Check syntax errors for your dag
-python ~/airflow/dags/helloworld.py
+python /airflow/dags/helloworld.py
 
 # Print the list of active DAGs
 airflow list_dags
