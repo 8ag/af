@@ -6,8 +6,10 @@ apt-get update -y
 apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils
 apt-get install -y python-pip
 pip install --upgrade pip
+pip install -U boto
 pip install airflow
 pip install airflow[celery]
+
 
 mkdir ${AIRFLOW_HOME}
 mkdir ${AIRFLOW_HOME}/dags
