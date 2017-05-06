@@ -3,9 +3,10 @@ echo "AIRFLOW_HOME=/airflow" >> /etc/bash.bashrc
 export AIRFLOW_HOME=/airflow
 
 apt-get update -y
-apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils
+apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils libmysqlclient-dev mysql-client
 apt-get install -y python-pip
 pip install --upgrade pip
+pip install MySQL-python
 pip install -U boto
 pip install airflow
 pip install airflow[celery]
