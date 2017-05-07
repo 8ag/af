@@ -7,7 +7,6 @@ apt-get  install -y mysql-server rabbitmq-server
 
 systemctl start mysql
 
-
 #mysql database	    : anixdb
 #mysql user 	      : airflowuser
 #mysql user pass	  : airflowpassword
