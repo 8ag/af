@@ -3,8 +3,7 @@ echo "AIRFLOW_HOME=/airflow" >> /etc/bash.bashrc
 export AIRFLOW_HOME=/airflow
 
 apt-get update -y
-apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils libmysqlclient-dev mysql-client
-apt-get install -y python-pip
+apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils libmysqlclient-dev mysql-client python-pip
 pip install --upgrade pip
 pip install MySQL-python
 pip install -U boto
@@ -16,10 +15,6 @@ mkdir ${AIRFLOW_HOME}
 mkdir ${AIRFLOW_HOME}/dags
 mkdir ${AIRFLOW_HOME}/logs
 mkdir ${AIRFLOW_HOME}/plugins
-
-
-cd ${AIRFLOW_HOME}; airflow initdb
-
 
 cat <<EOF > ${AIRFLOW_HOME}/stop-webserver-and-scheduler.sh
 #!/bin/bash
@@ -133,5 +128,6 @@ t11.set_upstream(t9)
 t11.set_upstream(t10)
 EOF
 
-sh ${AIRFLOW_HOME}/start-webserver.sh
-sh ${AIRFLOW_HOME}/start-scheduler.sh
+#cd ${AIRFLOW_HOME}; airflow initdb
+#sh ${AIRFLOW_HOME}/start-webserver.sh
+#sh ${AIRFLOW_HOME}/start-scheduler.sh
