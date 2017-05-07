@@ -130,5 +130,5 @@ t11.set_upstream(t10)
 EOF
 
 cd ${AIRFLOW_HOME}; airflow initdb
-${AIRFLOW_HOME}/start-webserver.sh
-${AIRFLOW_HOME}/start-scheduler.sh
+sh ${AIRFLOW_HOME}/start-webserver.sh
+sh ${AIRFLOW_HOME}/start-scheduler.sh
