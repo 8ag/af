@@ -9,6 +9,7 @@ pip install MySQL-python
 pip install -U boto
 pip install airflow
 pip install airflow[celery]
+pip install airflow[mysql] 
 
 
 mkdir ${AIRFLOW_HOME}
@@ -128,6 +129,6 @@ t11.set_upstream(t9)
 t11.set_upstream(t10)
 EOF
 
-#cd ${AIRFLOW_HOME}; airflow initdb
-#sh ${AIRFLOW_HOME}/start-webserver.sh
-#sh ${AIRFLOW_HOME}/start-scheduler.sh
+cd ${AIRFLOW_HOME}; airflow initdb
+${AIRFLOW_HOME}/start-webserver.sh
+${AIRFLOW_HOME}/start-scheduler.sh
