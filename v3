@@ -24,7 +24,7 @@ systemctl start mysql
 
 #mysql database	    : anixdb
 #mysql user 	      : airflowuser
-#mysql user pass    : airflowpassword
+#mysql user pass	  : airflowpassword
 
 mysql -u root -pQwaszx12 <<MY_QUERY
 CREATE DATABASE anixdb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
@@ -42,7 +42,7 @@ rabbitmq-plugins enable rabbitmq_management
 rabbitmqctl add_user radmin radmin 
 rabbitmqctl set_user_tags radmin administrator 
 rabbitmqctl set_permissions -p / radmin ".*" ".*" ".*"
-
+systemctl restart rabbitmq-server 
 
 ### supporting config  files and config#### 
 cat <<EOF > ${AIRFLOW_HOME}/stop-webserver-and-scheduler.sh
@@ -257,5 +257,5 @@ sh ${AIRFLOW_HOME}/start-scheduler.sh
 
 #webserver:8080
 #mysql-server:3306
-#rabbitmq-server:5672
+#rabbitmq-server:5672 15672
 #flower:5555
