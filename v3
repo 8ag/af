@@ -1,0 +1,261 @@
+#!/bin/bash
+echo "AIRFLOW_HOME=/airflow" >> /etc/bash.bashrc
+export AIRFLOW_HOME=/airflow
+
+apt-get update -y
+apt-get  install -y unzip build-essential python-dev libsasl2-dev python-pandas binutils libmysqlclient-dev mysql-client python-pip
+echo mysql-server mysql-server/root_password select Qwaszx12 | debconf-set-selections
+echo mysql-server mysql-server/root_password_again select Qwaszx12 | debconf-set-selections
+apt-get  install -y mysql-server rabbitmq-server
+pip install --upgrade pip
+pip install MySQL-python
+pip install -U boto
+pip install airflow
+pip install airflow[celery]
+pip install airflow[mysql] 
+
+
+mkdir ${AIRFLOW_HOME}
+mkdir ${AIRFLOW_HOME}/dags
+mkdir ${AIRFLOW_HOME}/logs
+mkdir ${AIRFLOW_HOME}/plugins
+
+systemctl start mysql
+
+#mysql database	    : anixdb
+#mysql user 	      : airflowuser
+#mysql user pass    : airflowpassword
+
+mysql -u root -pQwaszx12 <<MY_QUERY
+CREATE DATABASE anixdb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE USER 'airflowuser'@'localhost' IDENTIFIED BY 'airflowpassword';
+CREATE USER 'airflowuser'@'%' IDENTIFIED BY 'airflowpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'%';
+FLUSH PRIVILEGES;
+MY_QUERY
+
+
+systemctl start rabbitmq-server 
+systemctl enable rabbitmq-server
+rabbitmq-plugins enable rabbitmq_management
+rabbitmqctl add_user radmin radmin 
+rabbitmqctl set_user_tags radmin administrator 
+rabbitmqctl set_permissions -p / radmin ".*" ".*" ".*"
+
+
+### supporting config  files and config#### 
+cat <<EOF > ${AIRFLOW_HOME}/stop-webserver-and-scheduler.sh
+#!/bin/bash
+for pid in $(ps -ef | grep -e "ww" -e airflow | awk '{print $2}'); do kill -9 $pid; done
+EOF
+
+cat <<EOF > ${AIRFLOW_HOME}/start-webserver.sh
+#!/bin/bash
+nohup airflow webserver $* >> ${AIRFLOW_HOME}/webserver.logs &
+EOF
+
+
+cat <<EOF > ${AIRFLOW_HOME}/start-scheduler.sh
+#!/bin/bash
+nohup airflow scheduler >> ${AIRFLOW_HOME}/scheduler.logs &
+EOF
+
+cat <<EOF > ${AIRFLOW_HOME}/dags/demo-03.py
+from airflow import DAG
+from airflow.operators import BashOperator
+from datetime import datetime, timedelta
+# Following are defaults which can be overridden later on
+default_args = {
+    'owner': 'kotikala',
+    'depends_on_past': False,
+    'start_date': datetime(2017, 4, 23),
+    'email': ['onefilmbuff@gmail.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=1),
+}
+dag = DAG('demo-dag-03', default_args=default_args)
+# t1, t2, t3 and t4 are examples of tasks created using operators
+t1 = BashOperator(
+    task_id='task_1',
+    bash_command='echo "Hello World from Task 1"',
+    dag=dag)
+t2 = BashOperator(
+    task_id='task_2',
+    bash_command='echo "Hello World from Task 2"',
+    dag=dag)
+t3 = BashOperator(
+    task_id='task_3',
+    bash_command='echo "Hello World from Task 3"',
+    dag=dag)
+t4 = BashOperator(
+    task_id='task_4',
+    bash_command='echo "Hello World from Task 4"',
+    dag=dag)
+t5 = BashOperator(
+    task_id='task_5',
+    bash_command='echo "Hello World from Task 5"',
+    dag=dag)
+t6 = BashOperator(
+    task_id='task_6',
+    bash_command='echo "Hello World from Task 6"',
+    dag=dag)
+t7 = BashOperator(
+    task_id='task_7',
+    bash_command='echo "Hello World from Task 7"',
+    dag=dag)
+t8 = BashOperator(
+    task_id='task_8',
+    bash_command='echo "Hello World from Task 8"',
+    dag=dag)
+t9 = BashOperator(
+    task_id='task_9',
+    bash_command='echo "Hello World from Task 9"',
+    dag=dag)
+t10 = BashOperator(
+    task_id='task_10',
+    bash_command='echo "Hello World from Task 10"',
+    dag=dag)
+t11 = BashOperator(
+    task_id='task_11',
+    bash_command='echo "Hello World from Task 11"',
+    dag=dag)
+t2.set_upstream(t1)
+t3.set_upstream(t1)
+t4.set_upstream(t2)
+t5.set_upstream(t3)
+t6.set_upstream(t4)
+t6.set_upstream(t5)
+t7.set_upstream(t6)
+t8.set_upstream(t7)
+t9.set_upstream(t7)
+t10.set_upstream(t7)
+t11.set_upstream(t8)
+t11.set_upstream(t9)
+t11.set_upstream(t10)
+EOF
+
+
+cat <<EOF > ${AIRFLOW_HOME}/airflow.cfg
+[core]
+airflow_home = /root/airflow
+dags_folder = /root/airflow/dags
+base_log_folder = /root/airflow/logs
+remote_base_log_folder =
+remote_log_conn_id =
+encrypt_s3_logs = False
+s3_log_folder =
+executor = CeleryExecutor
+sql_alchemy_conn = mysql://airflowuser:airflowpassword@204.236.211.208:3306/anixdb
+sql_alchemy_pool_size = 5
+sql_alchemy_pool_recycle = 3600
+parallelism = 32
+dag_concurrency = 16
+dags_are_paused_at_creation = True
+non_pooled_task_slot_count = 128
+max_active_runs_per_dag = 16
+load_examples = True
+plugins_folder = /root/airflow/plugins
+fernet_key = cryptography_not_found_storing_passwords_in_plain_text
+donot_pickle = False
+dagbag_import_timeout = 30
+task_runner = BashTaskRunner
+default_impersonation =
+security =
+unit_test_mode = False
+[cli]
+api_client = airflow.api.client.local_client
+endpoint_url = http://localhost:8080
+[api]
+auth_backend = airflow.api.auth.backend.default
+[operators]
+default_owner = Airflow
+default_cpus = 1
+default_ram = 512
+default_disk = 512
+default_gpus = 0
+[webserver]
+base_url = http://localhost:8080
+web_server_host = 0.0.0.0
+web_server_port = 8080
+web_server_ssl_cert =
+web_server_ssl_key =
+web_server_worker_timeout = 120
+worker_refresh_batch_size = 1
+worker_refresh_interval = 30
+secret_key = temporary_key
+workers = 4
+worker_class = sync
+access_logfile = -
+error_logfile = -
+expose_config = False
+authenticate = False
+filter_by_owner = False
+owner_mode = user
+dag_orientation = LR
+demo_mode = False
+log_fetch_timeout_sec = 5
+hide_paused_dags_by_default = False
+[email]
+email_backend = airflow.utils.email.send_email_smtp
+[smtp]
+smtp_host = localhost
+smtp_starttls = True
+smtp_ssl = False
+smtp_port = 25
+smtp_mail_from = airflow@airflow.com
+[celery]
+celery_app_name = airflow.executors.celery_executor
+celeryd_concurrency = 16
+worker_log_server_port = 8793
+broker_url = amqp://radmin:radmin@204.236.211.208:5672
+celery_result_backend = db+mysql://airflowuser:airflowpassword@204.236.211.208:3306/anixdb
+flower_host = 0.0.0.0
+flower_port = 5555
+default_queue = default
+[scheduler]
+job_heartbeat_sec = 5
+scheduler_heartbeat_sec = 5
+run_duration = -1
+min_file_process_interval = 0
+dag_dir_list_interval = 300
+print_stats_interval = 30
+child_process_log_directory = /root/airflow/logs/scheduler
+scheduler_zombie_task_threshold = 300
+catchup_by_default = True
+statsd_on = False
+statsd_host = localhost
+statsd_port = 8125
+statsd_prefix = airflow
+max_threads = 2
+authenticate = False
+[mesos]
+master = localhost:5050
+framework_name = Airflow
+task_cpu = 1
+task_memory = 256
+checkpoint = False
+authenticate = False
+[kerberos]
+ccache = /tmp/airflow_krb5_ccache
+principal = airflow
+reinit_frequency = 3600
+kinit_path = kinit
+keytab = airflow.keytab
+[github_enterprise]
+api_rev = v3
+[admin]
+hide_sensitive_variable_fields = True
+EOF
+
+
+cd ${AIRFLOW_HOME}; airflow initdb
+sh ${AIRFLOW_HOME}/start-webserver.sh
+sh ${AIRFLOW_HOME}/start-scheduler.sh
+
+#webserver:8080
+#mysql-server:3306
+#rabbitmq-server:5672
+#flower:5555
