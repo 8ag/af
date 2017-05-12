@@ -16,6 +16,75 @@ mkdir ${AIRFLOW_HOME}/dags
 mkdir ${AIRFLOW_HOME}/logs
 mkdir ${AIRFLOW_HOME}/plugins
 
+#Mysql Server
+
+apt-get update -y
+echo mysql-server mysql-server/root_password select Qwaszx12 | debconf-set-selections
+echo mysql-server mysql-server/root_password_again select Qwaszx12 | debconf-set-selections
+apt-get  install -y mysql-server
+
+systemctl start mysql
+
+#mysql database         : airflowdb
+#mysql user             : airflowuser
+#mysql user pass        : airflowpassword
+#mysql> select user,host from mysql.user;
+
+mysql -u root -pQwaszx12 <<MY_QUERY
+CREATE DATABASE airflowdb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE USER 'airflowuser'@'localhost' IDENTIFIED BY 'airflowpassword';
+CREATE USER 'airflowuser'@'%' IDENTIFIED BY 'airflowpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'%';
+FLUSH PRIVILEGES;
+MY_QUERY
+
+cat <<EOF > /etc/mysql/mysql.conf.d/mysqld.cnf
+[mysqld_safe]
+socket          = /var/run/mysqld/mysqld.sock
+nice            = 0
+[mysqld]
+user            = mysql
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+port            = 3306
+basedir         = /usr
+datadir         = /var/lib/mysql
+tmpdir          = /tmp
+lc-messages-dir = /usr/share/mysql
+bind-address            = 0.0.0.0
+key_buffer_size         = 16M
+max_allowed_packet      = 16M
+thread_stack            = 192K
+thread_cache_size       = 8
+myisam-recover-options  = BACKUP
+query_cache_limit       = 1M
+query_cache_size        = 16M
+log_error = /var/log/mysql/error.log
+expire_logs_days        = 10
+max_binlog_size   = 100M
+EOF
+
+systemctl restart mysql
+
+#rabbitmq-server
+
+apt-get update -y
+apt-get install -y rabbitmq-server
+
+gunzip /usr/share/doc/rabbitmq-server/rabbitmq.config.example.gz
+cp /usr/share/doc/rabbitmq-server/rabbitmq.config.example  /etc/rabbitmq/rabbitmq.config
+
+systemctl start rabbitmq-server 
+systemctl enable rabbitmq-server
+
+rabbitmq-plugins enable rabbitmq_management
+rabbitmqctl add_user radmin radmin 
+rabbitmqctl set_user_tags radmin administrator 
+rabbitmqctl set_permissions -p / radmin ".*" ".*" ".*"
+
+systemctl restart rabbitmq-server 
+
 ### supporting config  files and config#### 
 cat <<EOF > ${AIRFLOW_HOME}/stop-webserver-and-scheduler.sh
 #!/bin/bash
@@ -112,7 +181,6 @@ t11.set_upstream(t8)
 t11.set_upstream(t9)
 t11.set_upstream(t10)
 EOF
-
 
 cat <<EOF > ${AIRFLOW_HOME}/airflow.cfg
 [core]
@@ -238,7 +306,6 @@ api_rev = v3
 hide_sensitive_variable_fields = True
 EOF
 
-
 cd ${AIRFLOW_HOME}; airflow initdb
 sh ${AIRFLOW_HOME}/start-webserver.sh
 sh ${AIRFLOW_HOME}/start-scheduler.sh
@@ -247,78 +314,3 @@ sh ${AIRFLOW_HOME}/start-scheduler.sh
 #mysql-server:3306
 #rabbitmq-server:5672 15672
 #flower:5555
-
-#Mysql Server
-
-apt-get update -y
-echo mysql-server mysql-server/root_password select Qwaszx12 | debconf-set-selections
-echo mysql-server mysql-server/root_password_again select Qwaszx12 | debconf-set-selections
-apt-get  install -y mysql-server
-
-systemctl start mysql
-
-#mysql database         : airflowdb
-#mysql user             : airflowuser
-#mysql user pass        : airflowpassword
-#mysql> select user,host from mysql.user;
-
-mysql -u root -pQwaszx12 <<MY_QUERY
-CREATE DATABASE airflowdb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-CREATE USER 'airflowuser'@'localhost' IDENTIFIED BY 'airflowpassword';
-CREATE USER 'airflowuser'@'%' IDENTIFIED BY 'airflowpassword';
-GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'localhost';
-GRANT ALL PRIVILEGES ON *.* TO 'airflowuser'@'%';
-FLUSH PRIVILEGES;
-MY_QUERY
-
-cat <<EOF > /etc/mysql/mysql.conf.d/mysqld.cnf
-[mysqld_safe]
-socket          = /var/run/mysqld/mysqld.sock
-nice            = 0
-[mysqld]
-user            = mysql
-pid-file        = /var/run/mysqld/mysqld.pid
-socket          = /var/run/mysqld/mysqld.sock
-port            = 3306
-basedir         = /usr
-datadir         = /var/lib/mysql
-tmpdir          = /tmp
-lc-messages-dir = /usr/share/mysql
-bind-address            = 0.0.0.0
-key_buffer_size         = 16M
-max_allowed_packet      = 16M
-thread_stack            = 192K
-thread_cache_size       = 8
-myisam-recover-options  = BACKUP
-query_cache_limit       = 1M
-query_cache_size        = 16M
-log_error = /var/log/mysql/error.log
-expire_logs_days        = 10
-max_binlog_size   = 100M
-EOF
-
-systemctl restart mysql
-
-#!/bin/bash
-
-#rabbitmq-server
-
-apt-get update -y
-apt-get install -y rabbitmq-server
-
-gunzip /usr/share/doc/rabbitmq-server/rabbitmq.config.example.gz
-cp /usr/share/doc/rabbitmq-server/rabbitmq.config.example  /etc/rabbitmq/rabbitmq.config
-
-systemctl start rabbitmq-server 
-systemctl enable rabbitmq-server
-
-rabbitmq-plugins enable rabbitmq_management
-rabbitmqctl add_user radmin radmin 
-rabbitmqctl set_user_tags radmin administrator 
-rabbitmqctl set_permissions -p / radmin ".*" ".*" ".*"
-
-systemctl restart rabbitmq-server 
-
-#executor = CeleryExecutor
-#broker_url = amqp://radmin:radmin@localhost/anix 
-#celery_result_backend = amqp://radmin:radmin@localhost/anix 
