@@ -12,6 +12,7 @@ systemctl start mysql
 #mysql database         : airflowdb
 #mysql user             : airflowuser
 #mysql user pass        : airflowpassword
+#mysql> select user,host from mysql.user;
 
 mysql -u root -pQwaszx12 <<MY_QUERY
 CREATE DATABASE airflowdb CHARACTER SET utf8 COLLATE utf8_unicode_ci;
